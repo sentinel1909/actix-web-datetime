@@ -28,12 +28,18 @@ async fn index() -> impl Responder {
         .body(index_template())
 }
 
+// health_check endpoing handler; returns a 200 OK response with an empty body
+async fn health_check() -> impl Responder {
+    HttpResponse::Ok().finish()
+}
+
 // main function
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .route("/", web::get().to(index))
+            .route("/health_check", web::get().to(health_check))
     })
     .bind("127.0.0.1:8000")?
     .run()
