@@ -205,13 +205,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "actix-web-datetime-backend"
+name = "actix-web-datetime"
 version = "0.1.0"
 dependencies = [
  "actix-files",
  "actix-web",
  "chrono",
- "derive_more",
  "tera",
 ]
 

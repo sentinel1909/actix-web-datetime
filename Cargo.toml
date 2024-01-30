@@ -1,7 +1,13 @@
 [package]
-name = "actix-web-datetime-backend"
+name = "actix-web-datetime"
 version = "0.1.0"
 edition = "2021"
+description = "A server rendered page which shows today's date and the current time"
+readme = "README.md"
+authors = ["Jeffery D. Mitchell", "<sentinel1909@jeff-mitchell.dev>"]
+repository = "https://github.com/sentinel1909/actix-web-datetime"
+licence = 'MIT'
+publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -9,5 +15,4 @@ edition = "2021"
 actix-files = "0.6.5"
 actix-web = "4.4.1"
 chrono = "0.4.33"
-derive_more = "0.99.17"
 tera = "1.19.1"

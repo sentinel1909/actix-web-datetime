@@ -7,8 +7,10 @@ use chrono::prelude::*;
 use std::sync::OnceLock;
 use tera::Tera;
 
+// initializer for the compiled template item, uses a static memory location
 static COMPILED_TEMPLATE: OnceLock<Tera> = OnceLock::new();
 
+// build the tera template
 fn get_index_template() -> &'static Tera {
     COMPILED_TEMPLATE.get_or_init(|| {
         let mut index_template = Tera::new("templates/**/*").unwrap();
@@ -22,7 +24,6 @@ fn get_index_template() -> &'static Tera {
 // function to get the current date and time
 fn get_today() -> String {
     Local::now().format("%Y-%m-%d %H:%M:%S").to_string()
-   
 }
 
 // function to set up the tera index template
