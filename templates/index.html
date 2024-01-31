@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/ico" href="/static/favicon.ico" />
   <link rel="stylesheet" type="text/css" href="/static/screen.css" />
+  <script src="/static/htmx.min.js"></script>
   <title>Actix-Web DateTime</title>
 </head>
 <body>
@@ -12,8 +13,20 @@
     <h1>Actix-Web DateTime</h1>
   </header>
   <main>
-    <h2>Today's Date:</h2>
+    <h2>Date:</h2>
     <p>{{ date }}</p>
+    <h3>Time:</h3>
+    <p>{{ time }}</p>
+    <p hx-get="/message" hx-trigger="load"></p>
+    <br />
+    <fieldset>
+      <form>
+        <label for="name">Name:</label>
+        <input type="text">
+        <input type="submit" value="Submit">
+      </form>
+    </fieldset>
+    <br />
   </main>
   <footer>
     <p>&copy Jeffery D Mitchell</p>

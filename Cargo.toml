@@ -6,7 +6,7 @@ description = "A server rendered page which shows today's date and the current t
 readme = "README.md"
 authors = ["Jeffery D. Mitchell", "<sentinel1909@jeff-mitchell.dev>"]
 repository = "https://github.com/sentinel1909/actix-web-datetime"
-licence = 'MIT'
+license = "MIT"
 publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
