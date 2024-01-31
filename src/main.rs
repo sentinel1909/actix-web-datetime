@@ -4,20 +4,18 @@
 use actix_files as fs;
 use actix_web::{http::header::ContentType, web, App, HttpResponse, HttpServer, Responder};
 use chrono::prelude::*;
-use std::sync::OnceLock;
-use tera::Tera;
+use once_cell::sync::OnceCell;
+use tera::{Error, Tera};
 
 // initializer for the compiled template item, uses a static memory location
-static COMPILED_TEMPLATE: OnceLock<Tera> = OnceLock::new();
+static COMPILED_TEMPLATE: OnceCell<Tera> = OnceCell::new();
 
 // build the tera template
-fn get_index_template() -> &'static Tera {
-    COMPILED_TEMPLATE.get_or_init(|| {
-        let mut index_template = Tera::new("templates/**/*").unwrap();
-        index_template
-            .add_template_file("templates/index.html", None)
-            .unwrap();
-        index_template
+fn get_index_template() -> Result<&'static Tera, Error> {
+    COMPILED_TEMPLATE.get_or_try_init(|| {
+        let mut index_template = Tera::new("templates/**/*")?;
+        index_template.add_template_file("templates/index.html", None)?;
+        Ok(index_template)
     })
 }
 
@@ -27,17 +25,22 @@ fn get_today() -> String {
 }
 
 // function to set up the tera index template
-fn index_template() -> String {
+fn index_template() -> Result<String, Error> {
     let mut context = tera::Context::new();
     context.insert("date", &get_today());
-    get_index_template().render("index.html", &context).unwrap()
+    get_index_template()?.render("index.html", &context)
 }
 
 // index route endpont handler; serves today's date and time as HTML
 async fn index() -> impl Responder {
-    HttpResponse::Ok()
-        .content_type(ContentType::html())
-        .body(index_template())
+    match index_template() {
+        Ok(template) => HttpResponse::Ok()
+            .content_type(ContentType::html())
+            .body(template),
+        Err(e) => HttpResponse::InternalServerError()
+            .content_type(ContentType::html())
+            .body(format!("{}", e)),
+    }
 }
 
 // health_check endpoing handler; returns a 200 OK response with an empty body

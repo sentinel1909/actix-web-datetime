@@ -211,6 +211,7 @@ dependencies = [
  "actix-files",
  "actix-web",
  "chrono",
+ "once_cell",
  "tera",
 ]
 
