@@ -2,16 +2,50 @@
 
 // dependencies
 use actix_files as fs;
-use actix_web::{http::header::ContentType, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{http::header::ContentType, web, App, HttpResponse, HttpServer, Responder, ResponseError};
 use chrono::prelude::*;
 use once_cell::sync::OnceCell;
-use tera::{Error, Tera};
+use tera:: Tera;
+
+// strut to wrap a tera::Error type
+struct TemplateRenderError(tera::Error);
+
+// implement the ResponseError trait for our TemplateRenderError type
+impl ResponseError for TemplateRenderError {}
+
+// implement the Rust standard error trait for TemplateRenderError
+impl std::error::Error for TemplateRenderError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        Some(&self.0)
+    } 
+}
+
+// implement the Debug trait for TemplateRenderError
+impl std::fmt::Debug for TemplateRenderError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}\nCaused by:\n\t{}", self, self.0)
+    }
+}
+
+// implement the Display trait for our TemplateRenderError type
+impl std::fmt::Display for TemplateRenderError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "A template rendering error was encountered while trying to build the Tera template.")
+    }
+}
+
+// implement the From trait to convert a tera::Error into a TemplateRenderError
+impl From<tera::Error> for TemplateRenderError {
+    fn from(err: tera::Error) -> Self {
+        TemplateRenderError(err)
+    }
+}
 
 // initializer for the compiled template item, uses a static memory location
 static COMPILED_TEMPLATE: OnceCell<Tera> = OnceCell::new();
 
 // build the tera template
-fn get_index_template() -> Result<&'static Tera, Error> {
+fn get_index_template() -> Result<&'static Tera, TemplateRenderError> {
     COMPILED_TEMPLATE.get_or_try_init(|| {
         let mut index_template = Tera::new("templates/**/*")?;
         index_template.add_template_file("templates/index.html", None)?;
@@ -30,11 +64,11 @@ fn get_time() -> String {
 }
 
 // function to set up the tera index template
-fn index_template() -> Result<String, Error> {
+fn index_template() -> Result<String, TemplateRenderError> {
     let mut context = tera::Context::new();
     context.insert("date", &get_today());
     context.insert("time", &get_time());
-    get_index_template()?.render("index.html", &context)
+    Ok(get_index_template()?.render("index.html", &context)?)
 }
 
 // index route endpont handler; serves today's date and time as HTML
@@ -45,7 +79,7 @@ async fn index() -> impl Responder {
             .body(template),
         Err(e) => HttpResponse::InternalServerError()
             .content_type(ContentType::html())
-            .body(format!("Error rendering template: {}", e)),
+            .body(format!("Error: {}", e)),
     }
 }
 
