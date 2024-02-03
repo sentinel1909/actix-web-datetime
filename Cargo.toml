@@ -9,6 +9,14 @@ repository = "https://github.com/sentinel1909/actix-web-datetime"
 license = "MIT"
 publish = false
 
+[[bin]]
+name = "actix-web-datetime"
+path = "src/bin/main.rs"
+
+[lib]
+name = "actix_web_datetime_lib"
+path = "src/lib/lib.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]

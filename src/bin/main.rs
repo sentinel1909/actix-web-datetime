@@ -2,10 +2,13 @@
 
 // dependencies
 use actix_files as fs;
-use actix_web::{http::header::ContentType, web, App, HttpResponse, HttpServer, Responder, ResponseError};
+use actix_web::{
+    http::header::ContentType, web, App, HttpResponse, HttpServer, Responder, ResponseError,
+};
+use actix_web_datetime_lib::routes::health_check;
 use chrono::prelude::*;
 use once_cell::sync::OnceCell;
-use tera:: Tera;
+use tera::Tera;
 
 // strut to wrap a tera::Error type
 struct TemplateRenderError(tera::Error);
@@ -17,7 +20,7 @@ impl ResponseError for TemplateRenderError {}
 impl std::error::Error for TemplateRenderError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         Some(&self.0)
-    } 
+    }
 }
 
 // implement the Debug trait for TemplateRenderError
@@ -30,7 +33,10 @@ impl std::fmt::Debug for TemplateRenderError {
 // implement the Display trait for our TemplateRenderError type
 impl std::fmt::Display for TemplateRenderError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "A template rendering error was encountered while trying to build the Tera template.")
+        write!(
+            f,
+            "A template rendering error was encountered while trying to build the Tera template."
+        )
     }
 }
 
@@ -83,11 +89,6 @@ async fn index() -> impl Responder {
     }
 }
 
-// health_check endpoing handler; returns a 200 OK response with an empty body
-async fn health_check() -> impl Responder {
-    HttpResponse::Ok().finish()
-}
-
 // message endpoint handler; returns a simple greeting
 async fn message() -> impl Responder {
     let msg = "Brought to you by htmx".to_string();
@@ -102,8 +103,8 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .route("/", web::get().to(index))
-            .route("/health_check", web::get().to(health_check))
             .route("/message", web::get().to(message))
+            .service(health_check)
             .service(fs::Files::new("/", "screen.css").use_last_modified(true))
             .service(fs::Files::new("/", "favicon.ico").use_last_modified(true))
             .service(fs::Files::new("/", "htmx.min.js").use_last_modified(true))
